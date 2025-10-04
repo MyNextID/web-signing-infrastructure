@@ -1,4 +1,4 @@
-# Binding a PassKey to an ID Token Using OpenID Connect (OIDC)
+# Binding a passkey to an ID Token Using OpenID Connect (OIDC)
 
 **Version:** 0.2
 **Status:** Draft
@@ -6,7 +6,7 @@
 ## Abstract
 
 This specification defines a mechanism for binding a **WebAuthn credential**
-(“PassKey”) to an **OpenID Connect (OIDC) ID Token**. The binding allows a
+(“passkey”) to an **OpenID Connect (OIDC) ID Token**. The binding allows a
 Relying Party (RP) to cryptographically associate a user’s verified identity
 (attested by an Identity Provider) with the cryptographic key pair used for
 signing operations. The binding is achieved without modifying IDP
@@ -15,14 +15,14 @@ infrastructure, using only the existing OIDC `nonce` parameter.
 ## 1. Introduction
 
 OpenID Connect (OIDC) enables an **Identity Provider (IDP)** to issue a signed
-**ID Token** containing verifiable user claims.  **PassKeys**, based on the
+**ID Token** containing verifiable user claims.  **passkeys**, based on the
 FIDO2/WebAuthn standard, are hardware-backed, phishing-resistant credentials
 that require user presence verification.
 
-This document specifies a mechanism to cryptographically bind a user’s PassKey
+This document specifies a mechanism to cryptographically bind a user’s passkey
 to an OIDC ID Token using the `nonce` field. The result is a verifiable linkage
 between **identity assertions** (from the IDP) and **key control** (from the
-PassKey), without requiring any modifications to IDPs.
+passkey), without requiring any modifications to IDPs.
 
 ## 2. Terminology
 
@@ -32,14 +32,14 @@ The key words **MUST**, **SHOULD**, and **MAY** are to be interpreted as describ
 | -------------------- | --------------------------------------------------------------------------- |
 | **IDP**              | Identity Provider supporting OIDC and issuing signed ID Tokens.             |
 | **RP**               | Relying Party or client application consuming the ID Token.                 |
-| **PassKey**          | A WebAuthn public key credential, as defined in [WebAuthn Level 3].         |
-| **PassKey ID (PID)** | The JWK thumbprint (RFC 7638) of the PassKey’s public key.                  |
+| **Passkey**          | A WebAuthn public key credential, as defined in [WebAuthn Level 3].         |
+| **Passkey ID (PID)** | The JWK thumbprint (RFC 7638) of the passkey’s public key.                  |
 | **ID Token (IDT)**   | A JWT issued by an IDP containing user identity assertions (OIDC Core 1.0). |
 | **Nonce**            | A client-defined challenge included in an OIDC request to prevent replay.   |
 
 ## 3. Protocol Overview
 
-Pre-requisite: End-user registered her PassKey with the RP.
+Pre-requisite: End-user registered her passkey with the RP.
 The binding protocol operates as follows:
 
 ```
@@ -53,7 +53,7 @@ The binding protocol operates as follows:
     |                |                  |
     |<-(4) ID Token---------------------|
     |                |                  |
-    |--(5) Verify ID Token & PassKey--> |
+    |--(5) Verify ID Token & Passkey--> |
 ```
 
 Note: the flow can be also implemented on the IDP side which would make the
@@ -61,10 +61,10 @@ trust model stronger.
 
 ## 4. Nonce Construction
 
-The `nonce` binds the ID Token to a specific PassKey. It encodes:
+The `nonce` binds the ID Token to a specific passkey. It encodes:
 
 * A version identifier
-* The PassKey’s JWK thumbprint (`PID`)
+* The passkey’s JWK thumbprint (`PID`)
 * A random challenge
 
 Encoding:
@@ -91,12 +91,12 @@ nonce   <- <version>.<BASE64URL(PID)>.<BASE64URL(rand)>
 
 ## 5. Procedures
 
-### 5.1 PassKey Registration
+### 5.1 Passkey Registration
 
 When registering:
 
 1. RP initiates WebAuthn registration (`navigator.credentials.create()`).
-2. Extract the PassKey’s public key.
+2. Extract the passkey’s public key.
 3. Compute the PID = JWK thumbprint.
 4. Store the PID and public key with the user’s RP account.
 
@@ -124,18 +124,18 @@ On receiving an ID Token, the RP:
 
    * Nonce matches request.
    * `rand` has not been replayed (RP MUST track state or TTL).
-   * `PID` matches registered PassKey’s public key.
+   * `PID` matches registered passkey’s public key.
 
-If successful, the RP can assert that the ID Token identity is bound to the PassKey.
+If successful, the RP can assert that the ID Token identity is bound to the passkey.
 
 ## 6. Security Considerations
 
 * **Replay Protection:** Each `rand` MUST be unique and unexpired. RPs MUST reject reused or stale values.
-* **Binding Strength:** Assurance derives from both the ID Token signature (by IDP) and PassKey cryptography.
+* **Binding Strength:** Assurance derives from both the ID Token signature (by IDP) and passkey cryptography.
 * **Nonce Entropy:** Nonces MUST use cryptographically secure random sources.
 * **Malicious RP Injection:** If an RP constructs nonces dishonestly, users might be misled. Clients MAY display nonce contents for transparency.
 * **Cross-RP Collisions:** Because nonces are arbitrary strings echoed by the IDP, implementers MUST prevent sharing or leakage across unrelated RPs.
-* **Multi-device PassKeys:** When PassKeys sync across devices, PIDs remain stable (same keypair), but implementers SHOULD account for device migration.
+* **Multi-device passkeys:** When passkeys sync across devices, PIDs remain stable (same keypair), but implementers SHOULD account for device migration.
 * **Audience Binding:** ID Tokens MUST be validated against the RP’s `client_id` to prevent token replay at another RP.
 
 ## 7. References
@@ -147,8 +147,8 @@ If successful, the RP can assert that the ID Token identity is bound to the Pass
 
 ## Appendix A: Example End-to-End Flow
 
-1. **Registration:** User registers PassKey → RP computes and stores PID.
+1. **Registration:** User registers passkey → RP computes and stores PID.
 2. **Authentication:** RP sends OIDC request with nonce `1.<PID>.<rand>`.
 3. **ID Token:** IDP issues signed ID Token with nonce echoed.
 4. **Verification:** RP verifies ID Token signature, checks nonce freshness, validates PID.
-5. **Result:** RP can assert that the PassKey corresponds to the identity asserted in the ID Token.
+5. **Result:** RP can assert that the passkey corresponds to the identity asserted in the ID Token.

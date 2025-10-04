@@ -8,7 +8,7 @@ end users, and (ii) the difficulty of securely storing and using private signing
 keys without relying on specialized hardware or centralized services.
 
 We address these limitations by leveraging two widely adopted standards: OpenID
-Connect (OIDC) and WebAuthn/Passkeys. First, we show how an identity provider
+Connect (OIDC) and WebAuthn/passkeys. First, we show how an identity provider
 (IdP) can bind a user’s public key to an OIDC-issued identity token, providing a
 practical alternative to certificate-based identity binding. Second, we
 demonstrate how WebAuthn’s secure, device-bound, and biometrically protected key
@@ -29,7 +29,7 @@ lightweight, stateless protocols.
 
 ## Specifications
 
-- [Binding a PassKey to an ID Token Using OpenID Connect (OIDC)](./id-token-binding.md)
+- [Binding a passkey to an ID Token Using OpenID Connect (OIDC)](./id-token-binding.md)
 
 ## Demo
 
