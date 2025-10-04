@@ -23,6 +23,10 @@ eliminates the need for centralized signature services, reduces deployment
 complexity, and makes digital signing accessible to a broad user base through
 lightweight, stateless protocols.
   
+## Overview
+
+![wsi diagram](./diagrams/mnid-web-signing-infrastructure-v1.drawio.png)
+
 ## Specifications
 
 - [Binding a PassKey to an ID Token Using OpenID Connect (OIDC)](./id-token-binding.md)
